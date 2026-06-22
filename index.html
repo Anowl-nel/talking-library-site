@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light" />
+    <title>会说话的图书馆</title>
+    <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div id="lockScreen" class="lock-screen">
+      <main class="lock-panel" aria-labelledby="lockTitle">
+        <div class="brand-row">
+          <span class="brand-mark" aria-hidden="true"></span>
+          <span>Private Library</span>
+        </div>
+        <h1 id="lockTitle">会说话的图书馆</h1>
+        <p id="lockIntro">用一个口令打开你的本地加密知识库。</p>
+        <form id="unlockForm" class="unlock-form">
+          <label for="passphrase">知识库口令</label>
+          <input
+            id="passphrase"
+            name="passphrase"
+            type="password"
+            autocomplete="current-password"
+            minlength="8"
+            placeholder="至少 8 位"
+            required
+          />
+          <button id="unlockButton" type="submit">
+            <i data-lucide="lock-keyhole"></i>
+            <span>打开</span>
+          </button>
+        </form>
+        <p id="lockMessage" class="inline-message" role="status"></p>
+      </main>
+    </div>
+
+    <div id="appShell" class="app-shell hidden">
+      <aside class="sidebar">
+        <div class="app-title">
+          <span class="brand-mark" aria-hidden="true"></span>
+          <div>
+            <strong>会说话的图书馆</strong>
+            <span id="vaultMeta">本地加密</span>
+          </div>
+        </div>
+
+        <div class="upload-zone" id="dropZone">
+          <input
+            id="fileInput"
+            class="file-input"
+            type="file"
+            multiple
+            accept=".pdf,.txt,.md,.markdown,.json,.csv,.log,.docx"
+          />
+          <button id="uploadButton" class="primary-action" type="button">
+            <i data-lucide="upload-cloud"></i>
+            <span>上传资料</span>
+          </button>
+          <span id="uploadStatus">PDF、文档、会议记录</span>
+        </div>
+
+        <div class="library-toolbar">
+          <label class="search-label" for="librarySearch">资料库</label>
+          <input id="librarySearch" type="search" placeholder="筛选文档" />
+        </div>
+
+        <nav id="documentList" class="document-list" aria-label="资料库"></nav>
+      </aside>
+
+      <main class="workspace">
+        <header class="topbar">
+          <div>
+            <span class="eyebrow">Private Knowledge Base</span>
+            <h2>和你的资料对话</h2>
+          </div>
+          <div class="top-actions">
+            <button id="exportButton" class="icon-button" type="button" aria-label="导出备份" title="导出备份">
+              <i data-lucide="download"></i>
+            </button>
+            <label class="icon-button file-restore" aria-label="导入备份" title="导入备份">
+              <i data-lucide="folder-input"></i>
+              <input id="restoreInput" type="file" accept=".json" />
+            </label>
+            <button id="settingsButton" class="icon-button" type="button" aria-label="设置" title="设置">
+              <i data-lucide="settings"></i>
+            </button>
+            <button id="lockButton" class="icon-button" type="button" aria-label="锁定" title="锁定">
+              <i data-lucide="lock"></i>
+            </button>
+          </div>
+        </header>
+
+        <section class="query-panel">
+          <form id="questionForm" class="question-form">
+            <textarea
+              id="questionInput"
+              rows="3"
+              placeholder="问一个问题，例如：上次会议确定了哪些行动项？"
+              required
+            ></textarea>
+            <div class="question-actions">
+              <div class="mode-toggle" role="group" aria-label="回答模式">
+                <button class="mode-button active" type="button" data-mode="local">本地引用</button>
+                <button class="mode-button" type="button" data-mode="ai">AI 后端</button>
+              </div>
+              <button id="askButton" type="submit">
+                <i data-lucide="send"></i>
+                <span>提问</span>
+              </button>
+            </div>
+          </form>
+        </section>
+
+        <section class="answer-grid">
+          <article class="answer-pane">
+            <div class="section-head">
+              <h3>回答</h3>
+              <span id="answerStatus">等待问题</span>
+            </div>
+            <div id="answerOutput" class="answer-output empty">
+              上传资料后，这里会显示带引用的答案。
+            </div>
+          </article>
+
+          <article class="sources-pane">
+            <div class="section-head">
+              <h3>引用</h3>
+              <span id="sourceCount">0 条</span>
+            </div>
+            <div id="sourceList" class="source-list"></div>
+          </article>
+        </section>
+      </main>
+    </div>
+
+    <dialog id="documentDialog" class="app-dialog">
+      <div class="dialog-head">
+        <h3 id="documentTitle">文档</h3>
+        <button id="closeDocumentButton" class="icon-button" type="button" aria-label="关闭">
+          <i data-lucide="x"></i>
+        </button>
+      </div>
+      <pre id="documentText" class="document-text"></pre>
+      <div class="dialog-actions">
+        <button id="deleteDocumentButton" class="danger-button" type="button">
+          <i data-lucide="trash-2"></i>
+          <span>删除</span>
+        </button>
+      </div>
+    </dialog>
+
+    <dialog id="settingsDialog" class="app-dialog small-dialog">
+      <div class="dialog-head">
+        <h3>设置</h3>
+        <button id="closeSettingsButton" class="icon-button" type="button" aria-label="关闭">
+          <i data-lucide="x"></i>
+        </button>
+      </div>
+      <form id="settingsForm" class="settings-form">
+        <label>
+          AI 后端地址
+          <input id="aiEndpoint" type="url" placeholder="https://your-api.example.com/chat" />
+        </label>
+        <label>
+          模型名
+          <input id="aiModel" type="text" placeholder="gpt-5.5" />
+        </label>
+        <label>
+          API Token
+          <input id="aiToken" type="password" autocomplete="off" placeholder="只保存在本机浏览器" />
+        </label>
+        <button type="submit">
+          <i data-lucide="save"></i>
+          <span>保存</span>
+        </button>
+      </form>
+    </dialog>
+
+    <template id="documentItemTemplate">
+      <button class="document-item" type="button">
+        <span class="doc-icon"><i data-lucide="file-text"></i></span>
+        <span class="doc-main">
+          <strong></strong>
+          <small></small>
+        </span>
+      </button>
+    </template>
+
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+    <script src="https://unpkg.com/mammoth@1.8.0/mammoth.browser.min.js"></script>
+    <script src="./app.js" type="module"></script>
+  </body>
+</html>
