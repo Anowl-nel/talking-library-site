@@ -25,8 +25,8 @@ PDF 和 DOCX 解析依赖 CDN 脚本；如果离线使用，TXT、Markdown、JSO
 1. 在 GitHub 创建一个新仓库，例如 `talking-library-site`。
 2. 把本目录推送到仓库的 `main` 分支。
 3. 打开仓库 `Settings` -> `Pages`。
-4. 在 `Build and deployment` 里选择 `GitHub Actions`。
-5. 等待 `Deploy to GitHub Pages` 工作流完成。
+4. 在 `Build and deployment` 里选择 `Deploy from a branch`。
+5. Source 选择 `main` 分支和 `/ (root)` 目录。
 
 常用命令：
 
